@@ -1,8 +1,8 @@
-const express = require('express')
-const compression = require('compression')
-const { default: helmet } = require('helmet')
-const morgan = require('morgan')
-const app = express()
+const express = require("express");
+const compression = require("compression");
+const { default: helmet } = require("helmet");
+const morgan = require("morgan");
+const app = express();
 
 require("dotenv").config();
 
@@ -14,6 +14,12 @@ app.use(morgan("dev"));
 
 app.use(helmet()); // use to protect application
 app.use(compression()); // use to reduce size of response
+app.use(express.json());
+app.use(
+  express.urlencoded({
+    extended: true,
+  })
+);
 
 // init db
 require("./dbs/init.mongodb");
@@ -25,4 +31,4 @@ app.use("/", require("./routes"));
 
 // handling errors
 
-module.exports = app
+module.exports = app;
