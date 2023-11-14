@@ -5,12 +5,13 @@ const bcrypt = require("bcrypt");
 const crypto = require("crypto");
 const KeyTokenService = require("./keyToken.service");
 const { createTokenPair } = require("../auth/authUtils");
+const { getInfoData } = require('../utils');
 
 const RoleShop = {
-  SHOP: "SHOP",
-  WRITER: "WRITER",
-  EDITOR: "EDITOR",
-  ADMIN: "ADMIN",
+  SHOP: 'SHOP',
+  WRITER: 'WRITER',
+  EDITOR: 'EDITOR',
+  ADMIN: 'ADMIN',
 };
 
 class AccessService {
@@ -20,14 +21,14 @@ class AccessService {
       const holderShop = await shopModel.findOne({ email }).lean();
       if (holderShop) {
         return {
-          code: "xxx",
-          message: "Shop already registered!",
-          status: "error",
+          code: 'xxx',
+          message: 'Shop already registered!',
+          status: 'error',
         };
       }
-      console.log("Password: ", password);
+      console.log('Password: ', password);
       const passwordHash = await bcrypt.hash(password, 10); // salt = 10 is enough
-      console.log("PasswordHash: ", passwordHash);
+      console.log('PasswordHash: ', passwordHash);
       const newShop = await shopModel.create({
         name,
         email,
@@ -37,15 +38,15 @@ class AccessService {
 
       if (newShop) {
         // create privateKey and publicKey
-        const { privateKey, publicKey } = crypto.generateKeyPairSync("rsa", {
+        const { privateKey, publicKey } = crypto.generateKeyPairSync('rsa', {
           modulusLength: 4096,
           publicKeyEncoding: {
-            type: "spki",
-            format: "der",
+            type: 'pkcs1',
+            format: 'pem',
           },
           privateKeyEncoding: {
-            type: "pkcs8",
-            format: "der",
+            type: 'pkcs1',
+            format: 'pem',
           },
         });
 
@@ -58,8 +59,8 @@ class AccessService {
 
         if (!publicKeyString) {
           return {
-            code: "xxx",
-            message: "publicKeyString error",
+            code: 'xxx',
+            message: 'publicKeyString error',
           };
         }
 
@@ -74,7 +75,10 @@ class AccessService {
         return {
           code: 201,
           metadata: {
-            shop: newShop,
+            shop: getInfoData({
+              fields: ['_id', 'name', 'email'],
+              object: newShop,
+            }),
             tokens,
           },
         };
@@ -85,9 +89,9 @@ class AccessService {
       };
     } catch (error) {
       return {
-        code: "xxx",
+        code: 'xxx',
         message: error.message,
-        status: "error",
+        status: 'error',
       };
     }
   };
