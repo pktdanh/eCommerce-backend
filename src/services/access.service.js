@@ -26,9 +26,7 @@ class AccessService {
           status: 'error',
         };
       }
-      console.log('Password: ', password);
       const passwordHash = await bcrypt.hash(password, 10); // salt = 10 is enough
-      console.log('PasswordHash: ', passwordHash);
       const newShop = await shopModel.create({
         name,
         email,
@@ -50,8 +48,6 @@ class AccessService {
           },
         });
 
-        console.log({ privateKey, publicKey }); // save to collection KeyStore
-
         const publicKeyString = await KeyTokenService.createKeyToken({
           userId: newShop._id,
           publicKey,
@@ -70,7 +66,6 @@ class AccessService {
           publicKey,
           privateKey
         );
-        console.log(`Created token success:: ${tokens}`);
 
         return {
           code: 201,
